@@ -22,6 +22,7 @@ class ResponsiveModal {
     bool isScrollable = true,
     bool useRootNavigator = true,
     bool barrierDismissible = true,
+    bool isFloating = false,
   }) {
     // Use MediaQuery to determine if we should show a dialog or bottom sheet
     final isLargeScreen = MediaQuery.sizeOf(context).width >= 635;
@@ -41,8 +42,8 @@ class ResponsiveModal {
           return Dialog(
             backgroundColor: bgColor,
             shadowColor: Colors.transparent,
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-            child: ClipRRect(
+            shape: RoundedSuperellipseBorder(borderRadius: BorderRadius.circular(16)),
+            child: ClipRSuperellipse(
               borderRadius: BorderRadius.circular(16),
               child: Container(
                 constraints:
@@ -57,10 +58,9 @@ class ResponsiveModal {
                     actionsPadding: EdgeInsets.only(right: 20),
                     actions: [CupertinoCloseButton()],
                   ),
-                  body:
-                      isScrollable
-                          ? SingleChildScrollView(child: builder(dialogContext, true))
-                          : builder(dialogContext, true),
+                  body: isScrollable
+                      ? SingleChildScrollView(child: builder(dialogContext, true))
+                      : builder(dialogContext, true),
                 ),
               ),
             ),
@@ -76,13 +76,36 @@ class ResponsiveModal {
         isScrollControlled: true,
         enableDrag: barrierDismissible,
         backgroundColor: bgColor,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
-        ),
+        shape: RoundedSuperellipseBorder(borderRadius: BorderRadius.circular(16)),
         constraints:
             constraints ?? BoxConstraints(minHeight: viewHeight * 0.3, maxHeight: viewHeight * 0.8),
         builder: (BuildContext bottomSheetContext) {
-          return ClipRRect(
+          if (isFloating) {
+            return Container(
+              margin: EdgeInsets.symmetric(
+                horizontal: 20,
+                vertical: MediaQuery.of(context).padding.bottom,
+              ),
+              child: ClipRSuperellipse(
+                borderRadius: BorderRadius.circular(16),
+                child: Scaffold(
+                  appBar: AppBar(
+                    title: Padding(padding: const EdgeInsets.only(left: 8), child: Text(title)),
+                    titleTextStyle: textTheme.headlineMedium,
+                    automaticallyImplyLeading: false,
+                    centerTitle: false,
+                    toolbarHeight: 65,
+                    actionsPadding: EdgeInsets.only(right: 10),
+                    actions: [CupertinoCloseButton()],
+                  ),
+                  body: isScrollable
+                      ? SingleChildScrollView(child: builder(bottomSheetContext, true))
+                      : builder(bottomSheetContext, true),
+                ),
+              ),
+            );
+          }
+          return ClipRSuperellipse(
             borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
             child: Scaffold(
               appBar: AppBar(
@@ -94,10 +117,9 @@ class ResponsiveModal {
                 actionsPadding: EdgeInsets.only(right: 10),
                 actions: [CupertinoCloseButton()],
               ),
-              body:
-                  isScrollable
-                      ? SingleChildScrollView(child: builder(bottomSheetContext, true))
-                      : builder(bottomSheetContext, true),
+              body: isScrollable
+                  ? SingleChildScrollView(child: builder(bottomSheetContext, true))
+                  : builder(bottomSheetContext, true),
             ),
           );
         },
